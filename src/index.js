@@ -1,4 +1,5 @@
 import './css/styles.css';
+import {axiosGet} from './axiosGet';
 import { Notify } from 'notiflix';
 import axios from 'axios';
 import SimpleLightbox from "simplelightbox";
@@ -11,8 +12,7 @@ const refs = {
     loadMore: document.querySelector('.load-more')
 }
 
-const API_KEY = '35439381-dc6c31f5e4218074de9a0ab23';
-const BASE_URL = 'https://pixabay.com/api/';
+
 
 let searchQuery = '';
 let page = 1;
@@ -25,9 +25,9 @@ refs.loadMore.addEventListener('click', onLoadMore)
 async function onLoadMore() {
   page += 1;
 
-  const data = await axiosGet(searchQuery);
+  const data = await axiosGet(searchQuery, page);
   totalHits += data.hits.length
-  
+ 
   if (totalHits>=500 || data.total===totalHits) {
     refs.loadMore.classList.add("is-hidden");
     Notify.warning("We're sorry, but you've reached the end of search results.");
@@ -39,7 +39,8 @@ async function onLoadMore() {
 }
 
 async function onSearch(event) {
-    event.preventDefault()
+  event.preventDefault()
+  refs.loadMore.classList.add("is-hidden");
     clearContainer();  
 
     searchQuery = event.currentTarget.elements.searchQuery.value.trim();
@@ -49,7 +50,8 @@ async function onSearch(event) {
         Notify.info("Sorry. Please enter a search.")
         return
     }
-    const data = await axiosGet(searchQuery);
+  const data = await axiosGet(searchQuery,page);
+  
     const markUp = await createMarkup(data.hits);
 
     appendMarkup(markUp)
@@ -64,26 +66,7 @@ async function onSearch(event) {
     refs.loadMore.classList.remove("is-hidden");
 }
 
-async function axiosGet(search) {
-  try {
-    const responce = await axios.get(`${BASE_URL}?key=${API_KEY}&q=${search}&page=${page}`, {
-      params: {
-        key: '35439381-dc6c31f5e4218074de9a0ab23',
-        image_type: 'photo',
-        orientation: 'horizontal',
-        safesearch: true,
-        per_page: 40
-      },
-    })
-    
- if (!responce.data.total) {
-            throw new Error(Notify.failure('Sorry, there are no images matching your search query. Please try again.'))
- }
-    return responce.data
-  } catch (error) {
-    console.error(error)
-  } 
-}
+
 
 function createMarkup(arr) {
     const markup = arr.map(item =>
@@ -116,3 +99,5 @@ function appendMarkup(markup) {
 function clearContainer() {
   refs.gallery.innerHTML = '';
 }
+
+console.log('ok')
