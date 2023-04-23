@@ -39,18 +39,19 @@ async function onLoadMore() {
 }
 
 async function onSearch(event) {
-  event.preventDefault()
-  refs.loadMore.classList.add("is-hidden");
+    event.preventDefault()
+    refs.loadMore.classList.add("is-hidden");
     clearContainer();  
 
     searchQuery = event.currentTarget.elements.searchQuery.value.trim();
     page = 1;
+    totalHits=0
   
     if (!searchQuery) {
         Notify.info("Sorry. Please enter a search.")
         return
     }
-  const data = await axiosGet(searchQuery,page);
+    const data = await axiosGet(searchQuery,page);
   
     const markUp = await createMarkup(data.hits);
 
@@ -99,5 +100,3 @@ function appendMarkup(markup) {
 function clearContainer() {
   refs.gallery.innerHTML = '';
 }
-
-console.log('ok')
